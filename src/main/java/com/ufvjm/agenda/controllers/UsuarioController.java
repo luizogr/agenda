@@ -1,7 +1,7 @@
 package com.ufvjm.agenda.controllers;
 
-import com.ufvjm.agenda.DTO.UserResponseDTO;
-import com.ufvjm.agenda.DTO.UserUpdateDTO;
+import com.ufvjm.agenda.dto.UserResponseDTO;
+import com.ufvjm.agenda.dto.UserUpdateDTO;
 import com.ufvjm.agenda.entities.Usuario;
 import com.ufvjm.agenda.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;

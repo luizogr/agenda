@@ -1,4 +1,4 @@
-package com.ufvjm.agenda.DTO;
+package com.ufvjm.agenda.dto;
 
 public record RegisterRequestDTO(String nome, String email, String senha) {
 }

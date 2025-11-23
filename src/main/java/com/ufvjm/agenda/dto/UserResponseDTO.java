@@ -1,4 +1,4 @@
-package com.ufvjm.agenda.DTO;
+package com.ufvjm.agenda.dto;
 
 import com.ufvjm.agenda.entities.Usuario;
 

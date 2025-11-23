@@ -1,6 +1,4 @@
-package com.ufvjm.agenda.DTO;
-
-import java.util.UUID;
+package com.ufvjm.agenda.dto;
 
 public record LoginRequestDTO(String email, String senha) {
 }

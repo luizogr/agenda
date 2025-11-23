@@ -19,7 +19,6 @@ public class UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     private UUID getAuthenticatedUserId() {
-        // O SecurityContextHolder armazena o objeto Usuario que foi colocado lá pelo SecurityFilter
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return usuarioLogado.getId();
     }
@@ -33,17 +32,13 @@ public class UsuarioService {
     public Usuario updateUser(String nome, String email, String novaSenha) {
         Usuario usuario = getAuthenticatedUser();
 
-        // Atualiza campos
         if (nome != null && !nome.isBlank()) {
             usuario.setNome(nome);
         }
         if (email != null && !email.isBlank()) {
             usuario.setEmail(email);
         }
-
-        // Trata a nova senha, se fornecida
         if (novaSenha != null && !novaSenha.isBlank()) {
-            // Criptografa a nova senha antes de salvar
             usuario.setSenha(passwordEncoder.encode(novaSenha));
         }
 

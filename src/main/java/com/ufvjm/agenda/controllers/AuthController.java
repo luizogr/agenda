@@ -1,12 +1,11 @@
 package com.ufvjm.agenda.controllers;
 
-import com.ufvjm.agenda.DTO.LoginRequestDTO;
-import com.ufvjm.agenda.DTO.RegisterRequestDTO;
-import com.ufvjm.agenda.DTO.ResponseDTO;
+import com.ufvjm.agenda.dto.LoginRequestDTO;
+import com.ufvjm.agenda.dto.RegisterRequestDTO;
+import com.ufvjm.agenda.dto.ResponseDTO;
 import com.ufvjm.agenda.entities.Usuario;
 import com.ufvjm.agenda.infra.security.TokenService;
 import com.ufvjm.agenda.repositories.UsuarioRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
