@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Tarefa</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container center-screen">
+    <div class="card form-card" style="max-width: 500px;">
+        <h3>Editar Tarefa</h3>
+
+        <form th:action="@{/agenda/update/{id}(id=${compromissoId})}" th:object="${compromissoParaEditar}" method="post">
+            <label>Título:</label>
+            <input type="text" th:field="*{nome}" required>
+
+            <label>Descrição:</label>
+            <input type="text" th:field="*{descricao}">
+
+            <div class="form-group">
+                <label for="dataHora">Data e Hora:</label>
+                <input type="datetime-local" id="dataHora" th:field="*{data}"
+
+                       th:value="${#temporals.format(compromissoParaEditar.data, 'yyyy-MM-dd''T''HH:mm')}"
+
+                       required>
+            </div>
+
+            <label>Status:</label>
+            <select th:field="*{status}">
+                <option th:each="s : ${statusValues}" th:value="${s}" th:text="${s}"></option>
+            </select>
+
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button type="submit" class="btn-primary">Salvar</button>
+                <a th:href="@{/agenda}" class="btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CHRONOS - Início</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Estilo extra apenas para a Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Duas colunas iguais */
+            gap: 20px;
+        }
+        .empty-msg {
+            color: #aaa;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        .highlight-value {
+            font-size: 2em;
+            color: #ff6b6b;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <a th:href="@{/home}" class="logo-link">
+        <img th:src="@{/images/logo-chronos.svg}" alt="CHRONOS Logo" class="logo-img">
+    </a>
+    <div class="menu">
+        <a th:href="@{/home}" class="active">Início</a>
+        <a th:href="@{/agenda}">Agenda</a>
+        <a th:href="@{/financas}">Finanças</a>
+        <div class="user-menu-container">
+            <button class="menu-icon" onclick="toggleMenu()">&#9776;</button>
+
+            <div id="user-dropdown" class="dropdown-content">
+                <a th:href="@{/users/me}">Perfil</a>
+
+                <a th:href="@{/logout}">Sair (Logout)</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2 style="margin-bottom: 5px;">👋 Bem-vindo de volta!</h2>
+    <p style="color: #ccc; margin-bottom: 25px;">Resumo do dia: <span th:text="${dataHoje}"></span></p>
+
+    <div class="dashboard-grid">
+
+        <div class="card">
+            <h3>📅 Tarefas de Hoje</h3>
+            <div th:if="${#lists.isEmpty(tarefasHoje)}" class="empty-msg">
+                Nenhuma tarefa para hoje.
+                <br>
+                <a th:href="@{/agenda}" style="font-size: 14px; color: #dcb0ff;">Ver agenda completa</a>
+            </div>
+
+            <table th:if="${!#lists.isEmpty(tarefasHoje)}">
+                <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Tarefa</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${tarefasHoje}">
+                    <td th:text="${#temporals.format(t.data, 'HH:mm')}"></td>
+                    <td th:text="${t.nome}"></td>
+                    <td>
+                        <span class="badge" th:classappend="${t.statusAgenda.name()}" th:text="${t.statusAgenda}"></span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div th:if="${!#lists.isEmpty(tarefasHoje)}" style="text-align: center; margin-top: 15px;">
+                <a th:href="@{/agenda}" class="btn-secondary" style="width: auto;">Gerenciar Agenda</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>💰 Gastos de Hoje</h3>
+
+            <div class="highlight-value" th:text="'R$ ' + ${#numbers.formatDecimal(totalGastoHoje, 1, 'POINT', 2, 'COMMA')}"></div>
+            <p style="text-align: center; color: #ccc;">Total gasto hoje</p>
+
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+
+            <div th:if="${#lists.isEmpty(despesasHoje)}" class="empty-msg">
+                Nenhuma despesa registrada hoje.
+            </div>
+
+            <table th:if="${!#lists.isEmpty(despesasHoje)}">
+                <tbody>
+                <tr th:each="d : ${despesasHoje}">
+                    <td th:text="${d.nome}"></td>
+                    <td style="color: #ff6b6b; text-align: right;" th:text="'- R$ ' + ${d.valor}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <div style="text-align: center; margin-top: 15px;">
+                <a th:href="@{/financas}" class="btn-secondary" style="width: auto;">Ver Finanças</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    function toggleMenu() {
+        document.getElementById("user-dropdown").classList.toggle("show");
+    }
+
+    // Opcional: Fecha o menu se o usuário clicar fora dele
+    window.onclick = function(event) {
+        if (!event.target.matches('.menu-icon')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>

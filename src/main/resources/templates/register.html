@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CHRONOS - Cadastro</title>
+    <style>
+        body { background-color: #3b0e68; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: Arial, sans-serif; }
+        .login-container { background-color: rgba(0, 0, 0, 0.4); padding: 40px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); text-align: center; }
+        .login-container h1 { font-size: 24px; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 14px; }
+        .form-group input { width: 100%; padding: 10px; border: none; border-radius: 5px; box-sizing: border-box; }
+        .register-button { width: 100%; padding: 10px; background-color: #8c0cff; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 15px; }
+        .register-button:hover { background-color: #6a09c2; }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h1>CHRONOS - Novo Usuário</h1>
+
+    <div th:if="${errorMessage}" style="color: red; margin-bottom: 15px;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <form th:action="@{/register}" th:object="${registerData}" method="post">
+        <div class="form-group">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" th:field="*{nome}" required>
+        </div>
+        <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" th:field="*{email}" required>
+        </div>
+        <div class="form-group">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" th:field="*{senha}" required>
+        </div>
+        <button type="submit" class="register-button">Cadastrar</button>
+    </form>
+
+    <p style="margin-top: 25px;">
+        Já tem uma conta? <a th:href="@{/login}" style="color: #aaa;">Voltar para o Login</a>
+    </p>
+</div>
+</body>
+</html>

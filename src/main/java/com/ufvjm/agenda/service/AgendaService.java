@@ -4,8 +4,10 @@ import com.ufvjm.agenda.dto.AgendaRequestDTO;
 import com.ufvjm.agenda.entities.Agenda;
 import com.ufvjm.agenda.entities.Usuario;
 import com.ufvjm.agenda.repositories.AgendaRepository;
+import com.ufvjm.agenda.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,9 +19,21 @@ public class AgendaService {
     @Autowired
     private AgendaRepository agendaRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     private Usuario getAuthenticatedUser() {
-        Usuario user = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return user;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email;
+
+        if (principal instanceof UserDetails) {
+            email = ((UserDetails)principal).getUsername();
+        } else {
+            email = principal.toString();
+        }
+
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
     }
 
     public Agenda create(AgendaRequestDTO dto){
@@ -50,6 +64,16 @@ public class AgendaService {
             throw new RuntimeException("Acesso negado. Este compromisso não pertence a este usuário.");
         }
         return agenda;
+    }
+
+    public List<Agenda> findTodayByUsuario() {
+        Usuario user = getAuthenticatedUser();
+
+        // Define o intervalo: Hoje 00:00:00 até Hoje 23:59:59
+        java.time.LocalDateTime inicioDia = java.time.LocalDate.now().atStartOfDay();
+        java.time.LocalDateTime fimDia = java.time.LocalDate.now().atTime(java.time.LocalTime.MAX);
+
+        return agendaRepository.findByUsuarioIdAndDataBetween(user.getId(), inicioDia, fimDia);
     }
 
     public Agenda update(UUID id, AgendaRequestDTO dto) {

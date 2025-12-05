@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Minhas Finanças</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <a th:href="@{/home}" class="logo-link">
+        <img th:src="@{/images/logo-chronos.svg}" alt="CHRONOS Logo" class="logo-img">
+    </a>
+    <div class="menu">
+        <a th:href="@{/home}" class="active">Início</a>
+        <a th:href="@{/agenda}">Agenda</a>
+        <a th:href="@{/financas}" class="active">Finanças</a>
+        <div class="user-menu-container">
+            <button class="menu-icon" onclick="toggleMenu()">&#9776;</button>
+
+            <div id="user-dropdown" class="dropdown-content">
+                <a th:href="@{/users/me}">Perfil</a>
+
+                <a th:href="@{/logout}">Sair (Logout)</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>💰 Controle de Despesas</h2>
+
+    <div class="card summary-card">
+        <h3>Total Gasto</h3>
+        <h1 style="color: #ff6b6b;" th:text="'R$ ' + ${#numbers.formatDecimal(totalGasto, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</h1>
+    </div>
+
+    <div th:if="${successMessage}" class="alert success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert error" th:text="${errorMessage}"></div>
+
+    <div class="card form-card">
+        <h3>Nova Despesa</h3>
+        <form th:action="@{/financas}" th:object="${newDespesa}" method="post">
+            <div class="row">
+                <input type="text" th:field="*{nome}" placeholder="O que foi comprado?" required>
+                <input type="number" step="0.01" th:field="*{valor}" placeholder="Valor (R$)" required>
+                <input type="date" th:field="*{data}" required>
+            </div>
+            <input type="text" th:field="*{descricao}" placeholder="Detalhes (opcional)" style="width: 100%; margin-top: 10px;">
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">Lançar Despesa</button>
+        </form>
+    </div>
+
+    <div class="card list-card">
+        <table>
+            <thead>
+            <tr>
+                <th>Data</th>
+                <th>Despesa</th>
+                <th>Valor</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="d : ${despesas}">
+                <td th:text="${#temporals.format(d.data, 'dd/MM/yyyy')}"></td>
+                <td th:text="${d.nome}"></td>
+                <td style="color: #ff6b6b; font-weight: bold;" th:text="'- R$ ' + ${#numbers.formatDecimal(d.valor, 1, 'POINT', 2, 'COMMA')}"></td>
+                <td>
+                    <a th:href="@{/financas/edit/{id}(id=${d.id})}" class="btn-edit">Editar</a>
+                    <form th:action="@{/financas/delete/{id}(id=${d.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-delete" onclick="return confirm('Apagar despesa?')">X</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function toggleMenu() {
+        document.getElementById("user-dropdown").classList.toggle("show");
+    }
+
+    // Opcional: Fecha o menu se o usuário clicar fora dele
+    window.onclick = function(event) {
+        if (!event.target.matches('.menu-icon')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>

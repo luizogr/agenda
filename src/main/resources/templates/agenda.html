@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Minha Agenda</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<nav class="navbar">
+    <a th:href="@{/home}" class="logo-link">
+        <img th:src="@{/images/logo-chronos.svg}" alt="CHRONOS Logo" class="logo-img">
+    </a>
+    <div class="menu">
+        <a th:href="@{/home}" class="active">Início</a>
+        <a th:href="@{/agenda}" class="active">Agenda</a>
+        <a th:href="@{/financas}">Finanças</a>
+        <div class="user-menu-container">
+            <button class="menu-icon" onclick="toggleMenu()">&#9776;</button>
+
+            <div id="user-dropdown" class="dropdown-content">
+                <a th:href="@{/users/me}">Perfil</a>
+
+                <a th:href="@{/logout}">Sair (Logout)</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>📅 Minhas Tarefas</h2>
+
+    <div th:if="${successMessage}" class="alert success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert error" th:text="${errorMessage}"></div>
+
+    <div class="card form-card">
+        <h3>Nova Tarefa</h3>
+        <form th:action="@{/agenda}" th:object="${newCompromisso}" method="post">
+            <div class="row">
+                <input type="text" th:field="*{nome}" placeholder="Título da tarefa" required>
+                <input type="datetime-local" th:field="*{data}" required>
+                <select th:field="*{status}">
+                    <option th:each="s : ${statusValues}" th:value="${s}" th:text="${s}"></option>
+                </select>
+            </div>
+            <input type="text" th:field="*{descricao}" placeholder="Descrição (opcional)" style="width: 100%; margin-top: 10px;">
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">Adicionar</button>
+        </form>
+    </div>
+
+    <div class="card list-card">
+        <table>
+            <thead>
+            <tr>
+                <th>Data/Hora</th>
+                <th>Título</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${compromissos}">
+                <td th:text="${#temporals.format(item.data, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${item.nome}"></td>
+                <td>
+                    <span class="badge" th:classappend="${item.statusAgenda.name()}" th:text="${item.statusAgenda}"></span>
+                </td>
+                <td>
+                    <a th:href="@{/agenda/edit/{id}(id=${item.id})}" class="btn-edit">Editar</a>
+                    <form th:action="@{/agenda/delete/{id}(id=${item.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-delete" onclick="return confirm('Tem certeza?')">X</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(compromissos)}">
+                <td colspan="4" style="text-align:center;">Nenhuma tarefa cadastrada.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function toggleMenu() {
+        document.getElementById("user-dropdown").classList.toggle("show");
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.menu-icon')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>
+</body>
+</html>
