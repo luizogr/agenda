@@ -25,7 +25,7 @@ public class UsuarioService {
         return usuarioLogado.getId();
     }
 
-    private Usuario getAuthenticatedUser() {
+    public Usuario getAuthenticatedUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String email;
 
