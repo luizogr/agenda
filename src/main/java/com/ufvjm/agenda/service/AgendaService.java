@@ -10,7 +10,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -54,7 +56,12 @@ public class AgendaService {
 
     public List<Agenda> findAllByUsuario(){
         Usuario user = getAuthenticatedUser();
-        return agendaRepository.findByUsuarioId(user.getId());
+
+        List<Agenda> agendas = agendaRepository.findByUsuarioId(user.getId());
+
+        agendas.sort(Comparator.comparing(Agenda::getData)); // Ordena por data
+
+        return agendas;
     }
 
     public Agenda findById(UUID id) {
@@ -103,6 +110,20 @@ public class AgendaService {
         return findAllByUsuario().stream()
                 .filter(agenda -> agenda.getData().isAfter(now.minusMinutes(1)) && agenda.getData().isBefore(sevenDaysFromNow))
                 .sorted(Comparator.comparing(Agenda::getData)) // Ordena por data
+                .collect(Collectors.toList());
+    }
+
+    public List<Agenda> findByMonthAndYear(int ano, int mes) {
+        // 1. Define o primeiro dia do mês/ano
+        LocalDateTime primeiroDia = LocalDate.of(ano, mes, 1).atStartOfDay();
+
+        // 2. Define o último dia do mês (usando TemporalAdjusters)
+        LocalDateTime ultimoDia = primeiroDia.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59).withSecond(59);
+
+        // 3. Busca todos os compromissos do usuário e filtra no Java (operação rápida)
+        return findAllByUsuario().stream()
+                .filter(agenda -> agenda.getData().isAfter(primeiroDia.minusNanos(1)) && agenda.getData().isBefore(ultimoDia.plusNanos(1)))
+                .sorted(Comparator.comparing(Agenda::getData)) // Garante a ordenação
                 .collect(Collectors.toList());
     }
 }

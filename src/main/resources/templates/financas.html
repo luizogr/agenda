@@ -51,6 +51,17 @@
     </div>
 
     <div class="card list-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+
+            <a th:href="@{/financas(ano=${anoAnterior}, mes=${mesAnteriorValor})}"
+               style="color: #fff; font-weight: bold;"> &lt;&lt; Anterior</a>
+
+            <h2 style="margin: 0; text-transform: capitalize;" th:text="${mesAtualNome}">Novembro 2025</h2>
+
+            <a th:href="@{/financas(ano=${anoProximo}, mes=${mesProximoValor})}"
+               style="color: #fff; font-weight: bold;">Próximo &gt;&gt;</a>
+        </div>
+
         <table>
             <thead>
             <tr>

@@ -10,8 +10,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/agenda")
@@ -22,15 +27,56 @@ public class AgendaWebController {
 
     // READ ALL & VIEW (Rota principal /agenda)
     @GetMapping
-    public String showAgenda(Model model) {
-        // Busca apenas a lista de compromissos do usuário logado
-        List<Agenda> compromissos = agendaService.findAllByUsuario();
+    public String showAgenda(
+            @RequestParam(value = "ano", required = false) Integer ano,
+            @RequestParam(value = "mes", required = false) Integer mes,
+            Model model) {
 
-        model.addAttribute("compromissos", compromissos);
+        // 1. Define a data de referência (padrão é o mês atual)
+        LocalDate hoje = LocalDate.now();
+        int anoBusca = (ano != null) ? ano : hoje.getYear();
+        int mesBusca = (mes != null) ? mes : hoje.getMonthValue();
+
+        // --- CÁLCULO DE NAVEGAÇÃO PARA PRÓXIMO E ANTERIOR ---
+
+        // 2. Cria uma data de referência para o mês atual de busca
+        LocalDate dataBusca = LocalDate.of(anoBusca, mesBusca, 1);
+
+        // Calcula o mês e ano anterior/próximo
+        LocalDate mesAnterior = dataBusca.minusMonths(1);
+        LocalDate mesProximo = dataBusca.plusMonths(1);
+
+        // 3. Filtra os compromissos usando o novo método de serviço
+        List<Agenda> compromissosDoMes = agendaService.findByMonthAndYear(anoBusca, mesBusca);
+
+        // --- Lógica do Calendário (Para a grade de 42 dias) ---
+        LocalDate primeiroDiaVisivel = dataBusca.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        List<LocalDate> diasDoCalendario = new java.util.ArrayList<>();
+        for (int i = 0; i < 42; i++) {
+            diasDoCalendario.add(primeiroDiaVisivel.plusDays(i));
+        }
+
+        // --- Adiciona os dados para a View ---
+        model.addAttribute("compromissos", compromissosDoMes);
         model.addAttribute("newCompromisso", new AgendaRequestDTO(null, null, null, null));
-        model.addAttribute("statusValues", StatusAgenda.values()); // Para o dropdown de status
+        model.addAttribute("statusValues", StatusAgenda.values());
 
-        return "agenda"; // Vai renderizar agenda.html
+        // Variáveis de Navegação
+        model.addAttribute("anoAtual", anoBusca);
+        model.addAttribute("mesAtualValor", mesBusca);
+        model.addAttribute("mesAtualNome", dataBusca.format(DateTimeFormatter.ofPattern("MMMM yyyy")));
+
+        // Variáveis para os botões Anterior/Próximo
+        model.addAttribute("anoAnterior", mesAnterior.getYear());
+        model.addAttribute("mesAnteriorValor", mesAnterior.getMonthValue());
+        model.addAttribute("anoProximo", mesProximo.getYear());
+        model.addAttribute("mesProximoValor", mesProximo.getMonthValue());
+
+        // Variáveis para o Calendário (Grade)
+        model.addAttribute("diasDoCalendario", diasDoCalendario);
+        model.addAttribute("mesDeReferencia", mesBusca);
+
+        return "agenda";
     }
 
     // CREATE (Rota POST /agenda)

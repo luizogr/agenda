@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,16 +23,42 @@ public class DespesaController {
 
     // 1. READ ALL & VIEW (Exibe a página principal de finanças)
     @GetMapping
-    public String showFinancasPage(Model model) {
-        List<Despesa> despesas = despesaService.findAllByCurrentUser();
-        Double totalGasto = despesaService.calculateTotalGasto(despesas);
+    public String showFinancasPage(
+            @RequestParam(value = "ano", required = false) Integer ano,
+            @RequestParam(value = "mes", required = false) Integer mes,
+            Model model) {
 
-        // Adiciona dados para o Thymeleaf usar
-        model.addAttribute("despesas", despesas);
+        // 1. Define a data de referência (padrão é o mês atual)
+        LocalDate hoje = LocalDate.now();
+        int anoBusca = (ano != null) ? ano : hoje.getYear();
+        int mesBusca = (mes != null) ? mes : hoje.getMonthValue();
+
+        // 2. Cria a data de busca e calcula a navegação
+        LocalDate dataBusca = LocalDate.of(anoBusca, mesBusca, 1);
+        LocalDate mesAnterior = dataBusca.minusMonths(1);
+        LocalDate mesProximo = dataBusca.plusMonths(1);
+
+        // 3. Filtra as despesas usando o novo metodo de serviço
+        List<Despesa> despesasDoMes = despesaService.findByMonthAndYear(anoBusca, mesBusca);
+
+        // 4. Recalcula o total gasto apenas com as despesas do mês
+        Double totalGasto = despesaService.calculateTotalGasto(despesasDoMes);
+
+        // --- Adiciona os dados para a View ---
+        model.addAttribute("despesas", despesasDoMes);
         model.addAttribute("totalGasto", totalGasto);
-        model.addAttribute("newDespesa", new DespesaRequestDTO(null, null, null, null)); // Para o formulário de criação
+        model.addAttribute("newDespesa", new DespesaRequestDTO(null, null, null, null));
 
-        return "financas"; // Retorna src/main/resources/templates/financas.html
+        // Variáveis de Navegação
+        model.addAttribute("anoAtual", anoBusca);
+        model.addAttribute("mesAtualValor", mesBusca);
+        model.addAttribute("mesAtualNome", dataBusca.format(DateTimeFormatter.ofPattern("MMMM yyyy")));
+        model.addAttribute("anoAnterior", mesAnterior.getYear());
+        model.addAttribute("mesAnteriorValor", mesAnterior.getMonthValue());
+        model.addAttribute("anoProximo", mesProximo.getYear());
+        model.addAttribute("mesProximoValor", mesProximo.getMonthValue());
+
+        return "financas";
     }
 
     // 2. CREATE (Processa o formulário de criação)

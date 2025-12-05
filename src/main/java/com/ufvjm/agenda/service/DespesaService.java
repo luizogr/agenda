@@ -10,8 +10,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class DespesaService {
@@ -53,7 +57,14 @@ public class DespesaService {
     // READ ALL
     public List<Despesa> findAllByCurrentUser() {
         Usuario usuarioLogado = getAuthenticatedUser();
-        return despesaRepository.findByUsuarioId(usuarioLogado.getId());
+
+        // 1. Busca todos os itens
+        List<Despesa> despesas = despesaRepository.findByUsuarioId(usuarioLogado.getId());
+
+        // 2. Ordena a lista pela data (do mais antigo para o mais recente)
+        despesas.sort(Comparator.comparing(Despesa::getData));
+
+        return despesas;
     }
 
     // READ ONE e CHECK SECURITY
@@ -96,8 +107,22 @@ public class DespesaService {
 
     // CÁLCULO DE BALANÇO MENSAL (Recupera todos e faz a soma)
     public Double calculateTotalGasto(List<Despesa> despesas) {
+        // Retorna a soma de todos os campos 'valor' na lista
         return despesas.stream()
                 .mapToDouble(Despesa::getValor)
                 .sum();
     }
+
+    public List<Despesa> findByMonthAndYear(int ano, int mes) {
+        // 1. Define o primeiro dia e o último dia do mês/ano
+        LocalDate primeiroDia = LocalDate.of(ano, mes, 1);
+        LocalDate ultimoDia = primeiroDia.with(TemporalAdjusters.lastDayOfMonth());
+
+        // 2. Busca todas as despesas do usuário e filtra no Java
+        return findAllByCurrentUser().stream()
+                .filter(despesa -> !despesa.getData().isBefore(primeiroDia) && !despesa.getData().isAfter(ultimoDia))
+                .collect(Collectors.toList());
+    }
+
+
 }
