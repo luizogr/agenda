@@ -9,21 +9,25 @@
 </head>
 <body>
 
-<div class="header">
-    <span style="font-size: 24px; font-weight: bold;">CHRONOS</span>
-    <div style="display: flex; align-items: center; gap: 25px;">
-        <a th:href="@{/agenda}" style="color: white;">Agenda</a>
-        <a th:href="@{/financas}" style="color: white;">Finanças</a>
-
+<nav class="navbar">
+    <a th:href="@{/home}" class="logo-link">
+        <img th:src="@{/images/logo-chronos.svg}" alt="CHRONOS Logo" class="logo-img">
+    </a>
+    <div class="menu">
+        <a th:href="@{/home}" class="active">Início</a>
+        <a th:href="@{/agenda}">Agenda</a>
+        <a th:href="@{/financas}" class="active">Finanças</a>
         <div class="user-menu-container">
             <button class="menu-icon" onclick="toggleMenu()">&#9776;</button>
+
             <div id="user-dropdown" class="dropdown-content">
                 <a th:href="@{/users/me}">Perfil</a>
+
                 <a th:href="@{/logout}">Sair (Logout)</a>
             </div>
         </div>
     </div>
-</div>
+</nav>
 
 <div class="content-main">
     <h2>Meu Perfil</h2>
@@ -49,7 +53,7 @@
     </form>
 
     <form th:action="@{/users/me/delete}" method="post" onsubmit="return confirm('ATENÇÃO: Tem certeza absoluta que deseja excluir sua conta? Esta ação é irreversível.');">
-        <button type="submit" class="btn-delete">Excluir Perfil Permanentemente</button>
+        <button type="submit" class="btn-delete">Excluir</button>
     </form>
 </div>
 

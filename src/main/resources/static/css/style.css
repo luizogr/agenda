@@ -138,3 +138,8 @@ th { color: #dcb0ff; }
 .show {
     display: block;
 }
+
+.content-main {
+    align-items: center;
+    justify-content: center;
+}
