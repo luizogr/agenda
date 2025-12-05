@@ -10,8 +10,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AgendaService {
@@ -90,5 +93,16 @@ public class AgendaService {
     public void delete(UUID id) {
         Agenda agenda = this.findById(id);
         agendaRepository.delete(agenda);
+    }
+
+    public List<Agenda> findTasksForCurrentWeek() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sevenDaysFromNow = now.plusDays(7);
+
+        // Busca todas as tarefas do usuário e filtra por data
+        return findAllByUsuario().stream()
+                .filter(agenda -> agenda.getData().isAfter(now.minusMinutes(1)) && agenda.getData().isBefore(sevenDaysFromNow))
+                .sorted(Comparator.comparing(Agenda::getData)) // Ordena por data
+                .collect(Collectors.toList());
     }
 }

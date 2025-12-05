@@ -28,6 +28,9 @@ public class HomeController {
         List<Agenda> tarefasHoje = agendaService.findTodayByUsuario();
         List<Despesa> despesasHoje = despesaService.findTodayByCurrentUser();
 
+        // Busca tarefas da semana
+        List<Agenda> tarefasSemana = agendaService.findTasksForCurrentWeek();
+
         // Calcula total gasto hoje
         Double totalGastoHoje = despesasHoje.stream().mapToDouble(Despesa::getValor).sum();
 
@@ -38,6 +41,8 @@ public class HomeController {
         model.addAttribute("despesasHoje", despesasHoje);
         model.addAttribute("totalGastoHoje", totalGastoHoje);
         model.addAttribute("dataHoje", dataHoje);
+
+        model.addAttribute("tarefasSemana", tarefasSemana);
 
         return "home";
     }

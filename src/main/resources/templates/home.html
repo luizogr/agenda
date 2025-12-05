@@ -110,6 +110,36 @@
         </div>
 
     </div>
+    <div class="card" style="margin-top: 30px;">
+        <h3>🗓️ Tarefas dos Próximos 7 Dias</h3>
+
+        <div th:if="${#lists.isEmpty(tarefasSemana)}" class="empty-msg">
+            Nenhuma tarefa agendada para a próxima semana.
+        </div>
+
+        <table th:if="${!#lists.isEmpty(tarefasSemana)}">
+            <thead>
+            <tr>
+                <th style="width: 15%;">Data</th>
+                <th>Tarefa</th>
+                <th style="width: 15%;">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${tarefasSemana}">
+                <td th:text="${#temporals.format(t.data, 'dd/MM HH:mm')}"></td>
+                <td th:text="${t.nome}"></td>
+                <td>
+                    <span class="badge" th:classappend="${t.statusAgenda.name()}" th:text="${t.statusAgenda}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div th:if="${!#lists.isEmpty(tarefasSemana)}" style="text-align: center; margin-top: 15px;">
+            <a th:href="@{/agenda}" class="btn-secondary" style="width: auto;">Ver Agenda Completa</a>
+        </div>
+    </div>
 </div>
 <script>
     function toggleMenu() {
